@@ -4,21 +4,40 @@ import { HeaderComponent } from './components/header/header.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { AseguradosTableComponent } from './components/asegurados-table/asegurados-table.component';
 import { AseguradosService } from './services/asegurados.service';
+import { AseguradoFormComponent } from './components/asegurado-form/asegurado-form.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
   imports: [
-    HeaderComponent,
-    SearchBarComponent,
-    AseguradosTableComponent
-],
+    CommonModule,
+    HeaderComponent, 
+    SearchBarComponent, 
+    AseguradosTableComponent,
+    AseguradoFormComponent
+  ],
   template: `
     <div class="app-container">
       <app-header></app-header>
       <main>
-        <app-search-bar (search)="onSearch($event)"></app-search-bar>
-        <app-asegurados-table [data]="aseguradosFiltrados"></app-asegurados-table>
+        <div class="controls">
+          <app-search-bar *ngIf="!showForm" (search)="onSearch($event)"></app-search-bar>
+          <button class="btn-primary" (click)="toggleView()">
+            {{ showForm ? '← Volver a la lista' : '➕ Nuevo Asegurado' }}
+          </button>
+        </div>
+
+        <app-asegurado-form 
+          *ngIf="showForm" 
+          (formCancel)="toggleView()" 
+          (formSubmit)="onAseguradoCreated()"
+        ></app-asegurado-form>
+
+        <app-asegurados-table
+          *ngIf="!showForm"
+          [data]="aseguradosFiltrados"
+        ></app-asegurados-table>
       </main>
     </div>
   `,
@@ -31,10 +50,17 @@ import { AseguradosService } from './services/asegurados.service';
     main {
       margin-top: 20px;
     }
-  `
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+  `,
 })
 export class AppComponent implements OnInit {
-  
+  showForm = false;
+
   title(title: any) {
     throw new Error('Method not implemented.');
   }
@@ -48,11 +74,12 @@ export class AppComponent implements OnInit {
     this.aseguradosService.getAsegurados().subscribe({
       next: (data) => {
         this.asegurados = data;
+        this.aseguradosFiltrados = data;
       },
       error: (err) => {
         console.error('Error al cargar datos:', err);
         alert('Error al cargar los datos');
-      }
+      },
     });
   }
 
@@ -70,7 +97,16 @@ export class AppComponent implements OnInit {
       next: (data: any[]) => {
         this.aseguradosFiltrados = data;
       },
-      error: (err) => console.error('Error en búsqueda:', err)
+      error: (err) => console.error('Error en búsqueda:', err),
     });
+  }
+
+  toggleView() {
+    this.showForm = !this.showForm;
+  }
+
+  onAseguradoCreated() {
+    this.loadAsegurados();
+    this.toggleView();
   }
 }

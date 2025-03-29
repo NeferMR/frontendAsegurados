@@ -1,5 +1,13 @@
 <app-header></app-header>
 <main class="container">
-  <app-search-bar></app-search-bar>
-  <app-asegurados-table [data]="asegurados"></app-asegurados-table>
+  <div class="action-bar">
+    <app-search-bar (search)="onSearch($event)"></app-search-bar>
+    <button class="btn-primary" (click)="showForm = !showForm">
+      {{ showForm ? 'Cancelar' : '➕ Nuevo Asegurado' }}
+    </button>
+    <app-add-asegurado-form *ngIf="showForm"></app-add-asegurado-form>
+  </div>
+
+  <app-asegurado-form *ngIf="showForm"></app-asegurado-form>
+  <app-asegurados-table [data]="aseguradosFiltrados"></app-asegurados-table>
 </main>
