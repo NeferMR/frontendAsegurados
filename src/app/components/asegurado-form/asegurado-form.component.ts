@@ -2,6 +2,7 @@ import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AseguradosService } from '../../services/asegurados.service';
+import { Asegurado } from '../../models/asegurado.interface';
 
 @Component({
   selector: 'app-asegurado-form',
@@ -198,7 +199,7 @@ import { AseguradosService } from '../../services/asegurados.service';
 })
 
 export class AseguradoFormComponent implements OnInit {
-  @Input() aseguradoToEdit?: any;
+  @Input() aseguradoToEdit?: Asegurado;
   @Output() formCancel = new EventEmitter<void>();
   @Output() formSubmit = new EventEmitter<void>();
 

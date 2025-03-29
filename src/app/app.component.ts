@@ -6,6 +6,7 @@ import { AseguradosTableComponent } from './components/asegurados-table/asegurad
 import { AseguradosService } from './services/asegurados.service';
 import { AseguradoFormComponent } from './components/asegurado-form/asegurado-form.component';
 import { CommonModule } from '@angular/common';
+import { Asegurado } from './models/asegurado.interface';
 
 @Component({
   selector: 'app-root',
@@ -39,6 +40,7 @@ import { CommonModule } from '@angular/common';
           *ngIf="!showForm"
           [data]="aseguradosFiltrados"
           (onEdit)="onEditAsegurado($event)"
+          (onDelete)="onDeleteAsegurado($event)"
         ></app-asegurados-table>
       </main>
     </div>
@@ -62,14 +64,14 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent implements OnInit {
   showForm = false;
-  aseguradoToEdit?: any;
+  aseguradoToEdit?: Asegurado;
 
   title(title: any) {
     throw new Error('Method not implemented.');
   }
 
-  asegurados: any[] = [];
-  aseguradosFiltrados: any[] = [];
+  asegurados: Asegurado[] = [];
+  aseguradosFiltrados: Asegurado[] = [];
 
   constructor(private aseguradosService: AseguradosService) {}
 
@@ -104,7 +106,7 @@ export class AppComponent implements OnInit {
     });
   }
 
-  onEditAsegurado(asegurado: any) {
+  onEditAsegurado(asegurado: Asegurado) {
     this.aseguradoToEdit = asegurado;
     this.showForm = true;
   }
@@ -119,5 +121,15 @@ export class AppComponent implements OnInit {
   onAseguradoCreated() {
     this.loadAsegurados();
     this.toggleView();
+  }
+
+  onDeleteAsegurado(asegurado: Asegurado) {
+    this.aseguradosService.deleteAsegurado(asegurado.numeroIdentificacion).subscribe({
+      next: () => {
+        alert('Asegurado eliminado exitosamente');
+        this.loadAsegurados();
+      },
+      error: () => alert('Error al eliminar el asegurado')
+    });
   }
 }

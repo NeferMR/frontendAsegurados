@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Asegurado } from '../../models/asegurado.interface';
 
 @Component({
   selector: 'app-asegurados-table',
@@ -27,7 +28,9 @@ import { CommonModule } from '@angular/common';
               <button class="btn-edit" (click)="onEdit.emit(asegurado)">
                 ✏️ Editar
               </button>
-              <button class="delete-btn">🗑️</button>
+              <button class="btn-delete" (click)="confirmarEliminar(asegurado)">
+                🗑️ Eliminar
+              </button>
             </td>
           </tr>
         </tbody>
@@ -81,9 +84,27 @@ import { CommonModule } from '@angular/common';
       border-radius: 3px;
       cursor: pointer;
     }
+    .btn-delete {
+      background: #e74c3c;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
+    .btn-delete:hover {
+      background: #c0392b;
+    }
   `
 })
 export class AseguradosTableComponent {
-  @Input() data: any[] = [];
-  @Output() onEdit = new EventEmitter<any>();
+  @Input() data: Asegurado[] = [];
+  @Output() onEdit = new EventEmitter<Asegurado>();
+  @Output() onDelete = new EventEmitter<Asegurado>();
+
+  confirmarEliminar(asegurado: Asegurado) {
+    if (confirm(`¿Está seguro que desea eliminar al asegurado ${asegurado.primerNombre} ${asegurado.primerApellido}?`)) {
+      this.onDelete.emit(asegurado);
+    }
+  }
 }
