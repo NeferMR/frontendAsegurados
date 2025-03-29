@@ -1,1 +1,7 @@
-<p>asegurados-table works!</p>
+<tr *ngFor="let item of filteredData">
+  <td>{{ item.numeroIdentificacion }}</td>
+  <td>
+    <button (click)="editItem(item)">✏️</button>
+    <button (click)="deleteItem(item)">🗑️</button>
+  </td>
+</tr>

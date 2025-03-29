@@ -1,0 +1,13 @@
+<form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <div class="form-group">
+      <label>Número de Identificación</label>
+      <input formControlName="numeroIdentificacion">
+      <div *ngIf="form.get('numeroIdentificacion')?.errors?.['required']" class="error">
+        Campo requerido
+      </div>
+    </div>
+    
+    <!-- Repetir para otros campos -->
+    
+    <button type="submit" [disabled]="!form.valid">Guardar</button>
+  </form>

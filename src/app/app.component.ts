@@ -1,8 +1,9 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { AseguradosTableComponent } from './components/asegurados-table/asegurados-table.component';
+import { AseguradosService } from './services/asegurados.service';
 
 @Component({
   selector: 'app-root',
@@ -17,7 +18,7 @@ import { AseguradosTableComponent } from './components/asegurados-table/asegurad
       <app-header></app-header>
       <main>
         <app-search-bar (search)="onSearch($event)"></app-search-bar>
-        <app-asegurados-table [data]="asegurados"></app-asegurados-table>
+        <app-asegurados-table [data]="aseguradosFiltrados"></app-asegurados-table>
       </main>
     </div>
   `,
@@ -32,14 +33,44 @@ import { AseguradosTableComponent } from './components/asegurados-table/asegurad
     }
   `
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  
   title(title: any) {
     throw new Error('Method not implemented.');
   }
+
   asegurados: any[] = [];
+  aseguradosFiltrados: any[] = [];
+
+  constructor(private aseguradosService: AseguradosService) {}
+
+  loadAsegurados() {
+    this.aseguradosService.getAsegurados().subscribe({
+      next: (data) => {
+        this.asegurados = data;
+      },
+      error: (err) => {
+        console.error('Error al cargar datos:', err);
+        alert('Error al cargar los datos');
+      }
+    });
+  }
+
+  ngOnInit() {
+    this.loadAsegurados();
+  }
 
   onSearch(query: string) {
-    // Lógica de búsqueda (se implementará luego)
-    console.log('Buscando:', query);
+    if (!query.trim()) {
+      this.aseguradosFiltrados = this.asegurados;
+      return;
+    }
+
+    this.aseguradosService.searchAsegurados(query).subscribe({
+      next: (data: any[]) => {
+        this.aseguradosFiltrados = data;
+      },
+      error: (err) => console.error('Error en búsqueda:', err)
+    });
   }
 }

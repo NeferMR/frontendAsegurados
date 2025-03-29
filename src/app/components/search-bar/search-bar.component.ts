@@ -1,9 +1,9 @@
 import { Component, Output, EventEmitter } from '@angular/core';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-search-bar',
-  standalone: true,
   imports: [FormsModule],
   template: `
     <div class="search-container">
@@ -39,11 +39,24 @@ import { FormsModule } from '@angular/forms';
   `
 })
 export class SearchBarComponent {
-  searchQuery = '';
+  private searchSubject = new Subject<string>();
   @Output() search = new EventEmitter<string>();
+  searchQuery = '';
+
+  constructor() {
+    this.searchSubject.pipe(
+      debounceTime(300),
+      distinctUntilChanged()
+    ).subscribe(query => this.search.emit(query));
+  }
 
   onInputChange() {
     this.search.emit(this.searchQuery);
+  }
+
+  onSearch(event: Event) {
+    const query = (event.target as HTMLInputElement).value;
+    this.searchSubject.next(query);
   }
 
   clearSearch() {
