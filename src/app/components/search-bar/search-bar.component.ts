@@ -13,28 +13,32 @@ import { FormsModule } from '@angular/forms';
         (ngModelChange)="onInputChange()"
         placeholder="🔍 Buscar por ID..."
       >
-      <button (click)="clearSearch()">❌</button>
     </div>
   `,
   styles: `
     .search-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
+      margin-bottom: 1.5rem;
     }
+
     input {
-      flex: 1;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
+      width: 100%;
+      padding: 0.8rem 1.2rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 50px;
+      font-size: 1rem;
+      transition: all 0.3s ease;
+      background: white;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
     }
-    button {
-      background: #e74c3c;
-      color: white;
-      border: none;
-      padding: 0 15px;
-      border-radius: 4px;
-      cursor: pointer;
+
+    input:focus {
+      outline: none;
+      border-color: #3498db;
+      box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+    }
+
+    input::placeholder {
+      color: #a0aec0;
     }
   `
 })
@@ -45,7 +49,7 @@ export class SearchBarComponent {
 
   constructor() {
     this.searchSubject.pipe(
-      debounceTime(300),
+      debounceTime(800),
       distinctUntilChanged()
     ).subscribe(query => this.search.emit(query));
   }
@@ -57,10 +61,5 @@ export class SearchBarComponent {
   onSearch(event: Event) {
     const query = (event.target as HTMLInputElement).value;
     this.searchSubject.next(query);
-  }
-
-  clearSearch() {
-    this.searchQuery = '';
-    this.search.emit('');
   }
 }

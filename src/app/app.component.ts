@@ -50,15 +50,55 @@ import { Asegurado } from './models/asegurado.interface';
       max-width: 1200px;
       margin: 0 auto;
       padding: 20px;
+      min-height: 100vh;
+      background-color: #f8fafc;
     }
+
     main {
-      margin-top: 20px;
+      margin-top: 2rem;
     }
+
     .controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 1rem;
+      margin-bottom: 1.5rem;
+      gap: 1rem;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+      color: white;
+      border: none;
+      padding: 0.8rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary:active {
+      transform: translateY(0);
+    }
+
+    @media (max-width: 768px) {
+      .controls {
+        flex-direction: column;
+      }
+
+      .btn-primary {
+        width: 100%;
+        justify-content: center;
+      }
     }
   `,
 })

@@ -1,9 +1,13 @@
 import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
-import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
+import { FormBuilder, Validators, ReactiveFormsModule, FormGroup } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AseguradosService } from '../../services/asegurados.service';
 import { Asegurado } from '../../models/asegurado.interface';
 
+/**
+ * Componente para crear y editar asegurados
+ * Maneja un formulario reactivo con validaciones
+ */
 @Component({
   selector: 'app-asegurado-form',
   standalone: true,
@@ -199,11 +203,15 @@ import { Asegurado } from '../../models/asegurado.interface';
 })
 
 export class AseguradoFormComponent implements OnInit {
+  /** Asegurado a editar (undefined si es creación) */
   @Input() aseguradoToEdit?: Asegurado;
+  /** Evento emitido cuando se cancela el formulario */
   @Output() formCancel = new EventEmitter<void>();
+  /** Evento emitido cuando se guarda exitosamente */
   @Output() formSubmit = new EventEmitter<void>();
 
-  form: any;
+  /** Formulario reactivo para los datos del asegurado */
+  form!: FormGroup;
 
   constructor(
     private fb: FormBuilder,
@@ -212,12 +220,10 @@ export class AseguradoFormComponent implements OnInit {
     this.initForm();
   }
 
-  ngOnInit() {
-    if (this.aseguradoToEdit) {
-      this.form.patchValue(this.aseguradoToEdit);
-    }
-  }
-
+  /**
+   * Inicializa el formulario con validaciones
+   * @private
+   */
   private initForm() {
     this.form = this.fb.group({
       numeroIdentificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
@@ -232,6 +238,19 @@ export class AseguradoFormComponent implements OnInit {
     });
   }
 
+  /**
+   * Si hay un asegurado para editar, carga sus datos en el formulario
+   */
+  ngOnInit() {
+    if (this.aseguradoToEdit) {
+      this.form.patchValue(this.aseguradoToEdit);
+    }
+  }
+
+  /**
+   * Maneja el envío del formulario
+   * Crea o actualiza el asegurado según corresponda
+   */
   onSubmit() {
     if (this.form.valid) {
       const request = this.aseguradoToEdit
@@ -251,6 +270,9 @@ export class AseguradoFormComponent implements OnInit {
     }
   }
 
+  /**
+   * Reinicia el formulario y emite evento de cancelación
+   */
   cancelar() {
     this.form.reset();
     this.formCancel.emit();
