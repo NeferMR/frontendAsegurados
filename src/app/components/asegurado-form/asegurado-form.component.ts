@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Output } from '@angular/core';
+import { Component, EventEmitter, Output, Input, OnInit } from '@angular/core';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
 import { AseguradosService } from '../../services/asegurados.service';
@@ -9,12 +9,13 @@ import { AseguradosService } from '../../services/asegurados.service';
   imports: [ReactiveFormsModule, CommonModule],
   template: `
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-container">
-      <h2>➕ Nuevo Asegurado</h2>
+      <h2 *ngIf="!aseguradoToEdit">➕ Nuevo Asegurado</h2>
+      <h2 *ngIf="aseguradoToEdit">✏️ Editar Asegurado</h2>
       
       <div class="form-group">
         <label>Número de Identificación</label>
         <input type="number" formControlName="numeroIdentificacion">
-        <div *ngIf="form.get('numeroIdentificacion')?.invalid" class="error">
+        <div *ngIf="form.get('numeroIdentificacion')?.invalid && form.get('numeroIdentificacion')?.touched" class="error">
           Campo requerido (solo números)
         </div>
       </div>
@@ -22,6 +23,9 @@ import { AseguradosService } from '../../services/asegurados.service';
       <div class="form-group">
         <label>Primer Nombre</label>
         <input type="text" formControlName="primerNombre">
+        <div *ngIf="form.get('primerNombre')?.invalid && form.get('primerNombre')?.touched" class="error">
+          Campo requerido
+        </div>
       </div>
 
       <div class="form-group">
@@ -32,6 +36,9 @@ import { AseguradosService } from '../../services/asegurados.service';
       <div class="form-group">
         <label>Primer Apellido</label>
         <input type="text" formControlName="primerApellido">
+        <div *ngIf="form.get('primerApellido')?.invalid && form.get('primerApellido')?.touched" class="error">
+          Campo requerido
+        </div>
       </div>
 
       <div class="form-group">
@@ -45,21 +52,33 @@ import { AseguradosService } from '../../services/asegurados.service';
       <div class="form-group">
         <label>Teléfono</label>
         <input type="tel" formControlName="telefono">
+        <div *ngIf="form.get('telefono')?.invalid && form.get('telefono')?.touched" class="error">
+          Campo requerido (10 dígitos)
+        </div>
       </div>
 
       <div class="form-group">
         <label>Email</label>
         <input type="email" formControlName="email">
+        <div *ngIf="form.get('email')?.invalid && form.get('email')?.touched" class="error">
+          Email inválido
+        </div>
       </div>
 
       <div class="form-group">
         <label>Fecha de Nacimiento</label>
         <input type="date" formControlName="fechaNacimiento">
+        <div *ngIf="form.get('fechaNacimiento')?.invalid && form.get('fechaNacimiento')?.touched" class="error">
+          Campo requerido
+        </div>
       </div>
 
       <div class="form-group">
         <label>Valor del Seguro</label>
         <input type="number" formControlName="valorSeguro">
+        <div *ngIf="form.get('valorSeguro')?.invalid && form.get('valorSeguro')?.touched" class="error">
+          Valor inválido (debe ser mayor a 0)
+        </div>
       </div>
 
       <div class="form-actions">
@@ -178,16 +197,27 @@ import { AseguradosService } from '../../services/asegurados.service';
   `
 })
 
-export class AseguradoFormComponent {
+export class AseguradoFormComponent implements OnInit {
+  @Input() aseguradoToEdit?: any;
   @Output() formCancel = new EventEmitter<void>();
   @Output() formSubmit = new EventEmitter<void>();
 
-  form;
+  form: any;
 
   constructor(
     private fb: FormBuilder,
     private aseguradosService: AseguradosService
   ) {
+    this.initForm();
+  }
+
+  ngOnInit() {
+    if (this.aseguradoToEdit) {
+      this.form.patchValue(this.aseguradoToEdit);
+    }
+  }
+
+  private initForm() {
     this.form = this.fb.group({
       numeroIdentificacion: ['', [Validators.required, Validators.pattern(/^\d+$/)]],
       primerNombre: ['', Validators.required],
@@ -203,13 +233,19 @@ export class AseguradoFormComponent {
 
   onSubmit() {
     if (this.form.valid) {
-      this.aseguradosService.createAsegurado(this.form.value).subscribe({
+      const request = this.aseguradoToEdit
+        ? this.aseguradosService.updateAsegurado(this.aseguradoToEdit.numeroIdentificacion, this.form.value)
+        : this.aseguradosService.createAsegurado(this.form.value);
+
+      request.subscribe({
         next: () => {
-          alert('¡Asegurado creado exitosamente!');
+          alert(this.aseguradoToEdit 
+            ? '¡Asegurado actualizado exitosamente!' 
+            : '¡Asegurado creado exitosamente!');
           this.form.reset();
           this.formSubmit.emit();
         },
-        error: () => alert('Error al crear el asegurado')
+        error: () => alert('Error al guardar el asegurado')
       });
     }
   }

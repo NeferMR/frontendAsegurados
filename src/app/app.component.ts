@@ -29,7 +29,8 @@ import { CommonModule } from '@angular/common';
         </div>
 
         <app-asegurado-form 
-          *ngIf="showForm" 
+          *ngIf="showForm"
+          [aseguradoToEdit]="aseguradoToEdit"
           (formCancel)="toggleView()" 
           (formSubmit)="onAseguradoCreated()"
         ></app-asegurado-form>
@@ -37,6 +38,7 @@ import { CommonModule } from '@angular/common';
         <app-asegurados-table
           *ngIf="!showForm"
           [data]="aseguradosFiltrados"
+          (onEdit)="onEditAsegurado($event)"
         ></app-asegurados-table>
       </main>
     </div>
@@ -60,6 +62,7 @@ import { CommonModule } from '@angular/common';
 })
 export class AppComponent implements OnInit {
   showForm = false;
+  aseguradoToEdit?: any;
 
   title(title: any) {
     throw new Error('Method not implemented.');
@@ -101,8 +104,16 @@ export class AppComponent implements OnInit {
     });
   }
 
+  onEditAsegurado(asegurado: any) {
+    this.aseguradoToEdit = asegurado;
+    this.showForm = true;
+  }
+
   toggleView() {
     this.showForm = !this.showForm;
+    if (!this.showForm) {
+      this.aseguradoToEdit = undefined;
+    }
   }
 
   onAseguradoCreated() {

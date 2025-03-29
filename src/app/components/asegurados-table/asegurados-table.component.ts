@@ -18,13 +18,15 @@ import { CommonModule } from '@angular/common';
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let item of data">
-            <td>{{ item.numeroIdentificacion }}</td>
-            <td>{{ item.primerNombre }} {{ item.primerApellido }}</td>
-            <td>{{ item.telefono }}</td>
-            <td>{{ item.email }}</td>
-            <td>
-              <button class="edit-btn">✏️</button>
+          <tr *ngFor="let asegurado of data">
+            <td>{{ asegurado.numeroIdentificacion }}</td>
+            <td>{{ asegurado.primerNombre }} {{ asegurado.primerApellido }}</td>
+            <td>{{ asegurado.telefono }}</td>
+            <td>{{ asegurado.email }}</td>
+            <td class="actions">
+              <button class="btn-edit" (click)="onEdit.emit(asegurado)">
+                ✏️ Editar
+              </button>
               <button class="delete-btn">🗑️</button>
             </td>
           </tr>
@@ -70,8 +72,18 @@ import { CommonModule } from '@angular/common';
       border-radius: 3px;
       cursor: pointer;
     }
+    .btn-edit {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 5px 10px;
+      margin-right: 5px;
+      border-radius: 3px;
+      cursor: pointer;
+    }
   `
 })
 export class AseguradosTableComponent {
   @Input() data: any[] = [];
+  @Output() onEdit = new EventEmitter<any>();
 }
