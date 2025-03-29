@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Asegurado } from '../../models/asegurado.interface';
+import { AlertComponent } from '../alert/alert.component';
 
 /**
  * Componente que muestra la lista de asegurados en formato de tabla
@@ -9,7 +10,7 @@ import { Asegurado } from '../../models/asegurado.interface';
 @Component({
   selector: 'app-asegurados-table',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AlertComponent],
   template: `
     <div class="table-container">
       <table>
@@ -40,6 +41,15 @@ import { Asegurado } from '../../models/asegurado.interface';
         </tbody>
       </table>
     </div>
+    <app-alert
+      [show]="showDeleteAlert"
+      [message]="'¿Está seguro que desea eliminar al asegurado ' + selectedAsegurado?.primerNombre + ' ' + selectedAsegurado?.primerApellido + '?'"
+      [type]="'info'"
+      [showCancel]="true"
+      [confirmText]="'Eliminar'"
+      (onClose)="onDeleteConfirm()"
+      (onCancel)="cancelDelete()"
+    ></app-alert>
   `,
   styles: `
     .table-container {
@@ -152,13 +162,28 @@ export class AseguradosTableComponent {
   /** Evento emitido cuando se confirma la eliminación de un asegurado */
   @Output() onDelete = new EventEmitter<Asegurado>();
 
+  showDeleteAlert = false;
+  selectedAsegurado?: Asegurado;
+
   /**
    * Solicita confirmación antes de emitir el evento de eliminación
    * @param asegurado Asegurado a eliminar
    */
   confirmarEliminar(asegurado: Asegurado) {
-    if (confirm(`¿Está seguro que desea eliminar al asegurado ${asegurado.primerNombre} ${asegurado.primerApellido}?`)) {
-      this.onDelete.emit(asegurado);
+    this.selectedAsegurado = asegurado;
+    this.showDeleteAlert = true;
+  }
+
+  onDeleteConfirm() {
+    if (this.selectedAsegurado) {
+      this.onDelete.emit(this.selectedAsegurado);
     }
+    this.showDeleteAlert = false;
+    this.selectedAsegurado = undefined;
+  }
+
+  cancelDelete() {
+    this.showDeleteAlert = false;
+    this.selectedAsegurado = undefined;
   }
 }

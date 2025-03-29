@@ -7,6 +7,7 @@ import { AseguradosService } from './services/asegurados.service';
 import { AseguradoFormComponent } from './components/asegurado-form/asegurado-form.component';
 import { CommonModule } from '@angular/common';
 import { Asegurado } from './models/asegurado.interface';
+import { AlertComponent } from './components/alert/alert.component';
 
 @Component({
   selector: 'app-root',
@@ -16,7 +17,8 @@ import { Asegurado } from './models/asegurado.interface';
     HeaderComponent, 
     SearchBarComponent, 
     AseguradosTableComponent,
-    AseguradoFormComponent
+    AseguradoFormComponent,
+    AlertComponent
   ],
   template: `
     <div class="app-container">
@@ -34,6 +36,7 @@ import { Asegurado } from './models/asegurado.interface';
           [aseguradoToEdit]="aseguradoToEdit"
           (formCancel)="toggleView()" 
           (formSubmit)="onAseguradoCreated()"
+          (showAlert)="handleFormAlert($event)"
         ></app-asegurado-form>
 
         <app-asegurados-table
@@ -43,6 +46,12 @@ import { Asegurado } from './models/asegurado.interface';
           (onDelete)="onDeleteAsegurado($event)"
         ></app-asegurados-table>
       </main>
+      <app-alert
+        [show]="showAlert"
+        [message]="alertMessage"
+        [type]="alertType"
+        (onClose)="closeAlert()"
+      ></app-alert>
     </div>
   `,
   styles: `
@@ -113,6 +122,10 @@ export class AppComponent implements OnInit {
   asegurados: Asegurado[] = [];
   aseguradosFiltrados: Asegurado[] = [];
 
+  showAlert = false;
+  alertMessage = '';
+  alertType: 'success' | 'error' | 'info' = 'info';
+
   constructor(private aseguradosService: AseguradosService) {}
 
   loadAsegurados() {
@@ -163,13 +176,44 @@ export class AppComponent implements OnInit {
     this.toggleView();
   }
 
+  handleFormAlert(alert: {message: string, type: 'success' | 'error'}) {
+    this.alertMessage = alert.message;
+    this.alertType = alert.type;
+    this.showAlert = true;
+    
+    if (alert.type === 'success') {
+      this.loadAsegurados();
+      this.showForm = false;
+      this.aseguradoToEdit = undefined;
+    }
+  }
+
+  closeAlert() {
+    this.showAlert = false;
+    if (this.alertType === 'error' && this.showForm) {
+      this.toggleView();
+    }
+  }
+
   onDeleteAsegurado(asegurado: Asegurado) {
     this.aseguradosService.deleteAsegurado(asegurado.numeroIdentificacion).subscribe({
       next: () => {
-        alert('Asegurado eliminado exitosamente');
+        this.showSuccessAlert('Asegurado eliminado exitosamente');
         this.loadAsegurados();
       },
-      error: () => alert('Error al eliminar el asegurado')
+      error: () => this.showErrorAlert('Error al eliminar el asegurado')
     });
+  }
+
+  showSuccessAlert(message: string) {
+    this.alertMessage = message;
+    this.alertType = 'success';
+    this.showAlert = true;
+  }
+
+  showErrorAlert(message: string) {
+    this.alertMessage = message;
+    this.alertType = 'error';
+    this.showAlert = true;
   }
 }

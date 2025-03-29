@@ -209,6 +209,7 @@ export class AseguradoFormComponent implements OnInit {
   @Output() formCancel = new EventEmitter<void>();
   /** Evento emitido cuando se guarda exitosamente */
   @Output() formSubmit = new EventEmitter<void>();
+  @Output() showAlert = new EventEmitter<{message: string, type: 'success' | 'error'}>();
 
   /** Formulario reactivo para los datos del asegurado */
   form!: FormGroup;
@@ -259,13 +260,20 @@ export class AseguradoFormComponent implements OnInit {
 
       request.subscribe({
         next: () => {
-          alert(this.aseguradoToEdit 
-            ? '¡Asegurado actualizado exitosamente!' 
-            : '¡Asegurado creado exitosamente!');
+          this.showAlert.emit({
+            message: this.aseguradoToEdit 
+              ? '¡Asegurado actualizado exitosamente!' 
+              : '¡Asegurado creado exitosamente!',
+            type: 'success'
+          });
           this.form.reset();
           this.formSubmit.emit();
+          this.cancelar();
         },
-        error: () => alert('Error al guardar el asegurado')
+        error: () => this.showAlert.emit({
+          message: 'Error al guardar el asegurado',
+          type: 'error'
+        })
       });
     }
   }
